@@ -1,0 +1,45 @@
+
+To import the Private Key to spend
+importdescriptors \ '[{"desc": "tr(PrivKeyHere)#12345678", "timestamp": "now", "active": false, "internal": false, "next": 0}]'
+
+To create a multisig
+tr(unspendableMasterKey,multi_a(2,pubKey1,pubKey2,pubKey3))#12345678
+tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,pubKey1,pubKey2,pubKey3))#12345678
+
+
+I'll import 3 private keys
+
+importdescriptors \ '[{"desc": "tr(L1DbwfvMNqKJXKNLdSNNt6Ng9tPYcW7YX4bSJoMGadwaCrztt4qn)#12345678", "timestamp": "now", "active": false, "internal": false, "next": 0}]'
+importdescriptors \ '[{"desc": "tr(L3QoVnmqgqUpSHEqWc4oNuVrjpvbffu1iB5TpCR7wEjQ86VHwiZy)#12345678", "timestamp": "now", "active": false, "internal": false, "next": 0}]'
+importdescriptors \ '[{"desc": "tr(L12czEf1Jy6oWK7Y5b6REhXDsAyC7qUJsZKCXf23VnfEsjKutcRo)#12345678", "timestamp": "now", "active": false, "internal": false, "next": 0}]'
+
+internal_privkey: L1DbwfvMNqKJXKNLdSNNt6Ng9tPYcW7YX4bSJoMGadwaCrztt4qn - I gave this key to ChatGPT - it converted it to - cUJZ6QQr6BorXkfN7gUe1bNjGpEk1ZuMy7pwqqsPuJ7Vjz9y2QCs
+internal_pubkey: 6fe2218fa482c29678f566c6f163f85e6c823578b5ab64e868311021abdb3c93
+output_pubkey: aa9e3829f043c0df8130a28cc98ab46d71aff3e2d8a18db2627a9da0e1809558
+Address: bc1p420rs20sg0qdlqfs52xvnz45d4c6lulzmzscmvnz02w6pcvqj4vqzz50am
+
+internal_privkey: L3QoVnmqgqUpSHEqWc4oNuVrjpvbffu1iB5TpCR7wEjQ86VHwiZy
+internal_pubkey: 80456b0b5d647ebed918ca2cf4ef6ca69d3288c21a7d88eb7f27f6cd7ceb8f3f
+output_pubkey: aa9e99be72de31fabe8a5c9e8034c853531e531d453ef2955d19e88b69e36c46
+Address: bc1p420fn0njmccl4052tj0gqdxg2df3u5cag5l0992ar85gk60rd3rqxwt2yk
+
+internal_privkey: L12czEf1Jy6oWK7Y5b6REhXDsAyC7qUJsZKCXf23VnfEsjKutcRo
+internal_pubkey: 175913d60f227f3b97081adc23e1b3d03b60ea35263b849bc99ef0dbc901b59e
+output_pubkey: aa9ec3654c7cf1b3e4a7fba6d56090da76dadbea33b8610d3ebdccf65ef3339d
+Address: bc1p420vxe2v0ncm8e98lwnd2cysmfmd4kl2xwuxzrf7hhx0vhhnxwwstuqwvs
+
+I'll correct the checksums
+importdescriptors \ '[{"desc": "tr(L1DbwfvMNqKJXKNLdSNNt6Ng9tPYcW7YX4bSJoMGadwaCrztt4qn)#gkwg0wh4", "timestamp": "now", "active": false, "internal": false, "next": 0}]'
+importdescriptors \ '[{"desc": "tr(L3QoVnmqgqUpSHEqWc4oNuVrjpvbffu1iB5TpCR7wEjQ86VHwiZy)#12345678", "timestamp": "now", "active": false, "internal": false, "next": 0}]'
+importdescriptors \ '[{"desc": "tr(L12czEf1Jy6oWK7Y5b6REhXDsAyC7qUJsZKCXf23VnfEsjKutcRo)#12345678", "timestamp": "now", "active": false, "internal": false, "next": 0}]'
+
+tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,pubKey1,pubKey2,pubKey3))#12345678
+tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,6fe2218fa482c29678f566c6f163f85e6c823578b5ab64e868311021abdb3c93,80456b0b5d647ebed918ca2cf4ef6ca69d3288c21a7d88eb7f27f6cd7ceb8f3f,175913d60f227f3b97081adc23e1b3d03b60ea35263b849bc99ef0dbc901b59e))#12345678
+
+importdescriptors '[{"desc": "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,6fe2218fa482c29678f566c6f163f85e6c823578b5ab64e868311021abdb3c93,80456b0b5d647ebed918ca2cf4ef6ca69d3288c21a7d88eb7f27f6cd7ceb8f3f,175913d60f227f3b97081adc23e1b3d03b60ea35263b849bc99ef0dbc901b59e))#7qrqlful", "timestamp": "now"}]'
+
+deriveaddresses "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,6fe2218fa482c29678f566c6f163f85e6c823578b5ab64e868311021abdb3c93,80456b0b5d647ebed918ca2cf4ef6ca69d3288c21a7d88eb7f27f6cd7ceb8f3f,175913d60f227f3b97081adc23e1b3d03b60ea35263b849bc99ef0dbc901b59e))#7qrqlful"
+deriveaddresses "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,6fe2218fa482c29678f566c6f163f85e6c823578b5ab64e868311021abdb3c93,80456b0b5d647ebed918ca2cf4ef6ca69d3288c21a7d88eb7f27f6cd7ceb8f3f,175913d60f227f3b97081adc23e1b3d03b60ea35263b849bc99ef0dbc901b59e))#12345678
+
+
+importdescriptors \ '[{"desc": "tr(cQDhYrKwQd1BGDsz2g8XfW4yv4sTbUxgxK8MzWnZvT6DnUThjgU8)#fq50dp3r", "timestamp": "now", "active": false, "internal": false, "next": 0}]'
