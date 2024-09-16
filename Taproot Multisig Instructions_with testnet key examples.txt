@@ -1,0 +1,122 @@
+Create a Taproot Multisig Address - use a legacy (not a descriptor) wallet.
+getnewaddress -> get a new bitcoin address
+getaddressinfo -> get your pubKey
+
+
+Wallet1: test_descriptor_wallet
+address1: tb1qf6gtjunzav4950h37hqplaq7gve4sn63p5lw7n
+pubKey1: 03f32918097ee0539af51e4d56379d2a4a045277d479c8b66c64e5bc9f61f3112f
+ 
+
+Wallet2 - DescriptorWallet2
+address2: tb1q5r80y304zsrke262l0cw8r90p7ppqktrnxuf6r
+pubKey2: 02e9c41869dc84cf71ae519c6b41e56b92608f29b4bb75fd7b00277bb67ba9da20
+ 
+
+Wallet3 - PubKey1legacy PSBT
+address3: tb1q0dq36f487m8cp3rtrfcnn9f2e9nk8dhkzlkqzk
+pubKey3: 02221852f60d109e6f6b97cb8149d5fa568565526138105bb33271a47d3d3baf6d
+
+
+
+//collect pubkeys for all addresses participating in the multisig
+importdescriptors -> combines the pubkeys into a single multisig address
+
+create the taproot descriptor using the below format
+"tr(KI,multi_a(21,K1,K2,K3,K4,...,K210))#12345678"
+
+where KI is the internal public key you want to use (which will need to be unspendable unless you want it to implement 
+an (1-of-1)-or-(21-of-210) policy. BIP341 gives an example of an unspendable key, namely 
+50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0. K1 through K210 would be the public keys you want to use. 
+They can be in 66-character hexadecimal notation (starting with 02 or 03), 64-character hexadecimal notation 
+(for x-only pubkeys), or xpubs or xprvs. See the linked document above for more details.
+
+We will create a 2-of-3 taproot multisig descriptor 
+tr(KI,multi_a(2,K1,K2,K3))#12345678
+tr(unspendableMasterKey,multi_a(2,pubKey1,pubKey2,pubKey3))#12345678
+tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,03f32918097ee0539af51e4d56379d2a4a045277d479c8b66c64e5bc9f61f3112f,02e9c41869dc84cf71ae519c6b41e56b92608f29b4bb75fd7b00277bb67ba9da20,02221852f60d109e6f6b97cb8149d5fa568565526138105bb33271a47d3d3baf6d))#12345678
+
+Use importdescriptors as step 1 of 2 in creating the multisig address
+importdescriptors '[{"desc": "trDescriptor", "timestamp": "now"}]'
+importdescriptors '[{"desc": "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,03f32918097ee0539af51e4d56379d2a4a045277d479c8b66c64e5bc9f61f3112f,02e9c41869dc84cf71ae519c6b41e56b92608f29b4bb75fd7b00277bb67ba9da20,02221852f60d109e6f6b97cb8149d5fa568565526138105bb33271a47d3d3baf6d))#12345678", "timestamp": "now"}]'
+
+The first time will fail and give an error. It will also give us the correct checksum in the result.
+Replace #1234567 in our tr decriptor with the provided checksum and do importdescriptors again
+
+importdescriptors '[{"desc": "trDescriptor", "timestamp": "now"}]'
+importdescriptors '[{"desc": "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,03f32918097ee0539af51e4d56379d2a4a045277d479c8b66c64e5bc9f61f3112f,02e9c41869dc84cf71ae519c6b41e56b92608f29b4bb75fd7b00277bb67ba9da20,02221852f60d109e6f6b97cb8149d5fa568565526138105bb33271a47d3d3baf6d))#av3ep5fe", "timestamp": "now"}]'
+
+
+This should give a result of-    "success": true
+
+now we can use deriveaddresses to get our multisig address
+deriveaddresses "tr(trDescriptor)#checksum"
+deriveaddresses "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,multi_a(2,03f32918097ee0539af51e4d56379d2a4a045277d479c8b66c64e5bc9f61f3112f,02e9c41869dc84cf71ae519c6b41e56b92608f29b4bb75fd7b00277bb67ba9da20,02221852f60d109e6f6b97cb8149d5fa568565526138105bb33271a47d3d3baf6d))#av3ep5fe"
+
+This gives us our Taproot Multisig address!
+Taproot Multisig address: "taprootMultiSigAddress"
+tb1prctdzkgtfjpakffmnlm6shzxuknvstmp26gxa0f37nnvcy4k2llqkjtmsz
+
+SAVE:
+1. Address
+2. descriptor
+3. EXACT order of pubkeys
+
+
+Now you can fund the multisig address using a regular transaction
+createrawtransaction \
+'[{"txid": "txid", "vout": vout, "sequence":1}]' \
+'{"taprootMultiSigAddress": amount}'
+
+createrawtransaction \
+'[{"txid": "d33ab0d9a9131df3c6d2b75848fab3ec92869762cb948a69956616876537b623", "vout": 1, "sequence":1}]' \
+'{"tb1prctdzkgtfjpakffmnlm6shzxuknvstmp26gxa0f37nnvcy4k2llqkjtmsz": 0.000996}'
+
+//SAVE the txid of the multisig funding transaction <txid>
+txid: "21e89884d5fdec345952da1932b5e870ffc0d7452a7cfa9875d569f290d09c45"
+
+SPEND from the Multisig Address
+
+gettransaction <txid> -> gets txid vout
+
+createpsbt \
+'[{"txid": "MultisigTxid", "vout": multiSigVout, "sequence":1}]' \
+'{"SpendToAddress": amount}'
+
+
+
+//This gives you a Raw PSBT = rawPSBThex
+
+participants can check PSBT before signing by using
+decodepsbt "rawPSBThex"
+
+//We need to process this in the wallet we used to create the multisig address (wallet with private keys disabled)
+walletprocesspsbt "rawPSBThex"
+//This returns a longer PSBT hex "processedPSBThex" and a result of false
+
+//We're going to sign this transaction with the first key.
+walletprocesspsbt "processedPSBThex"
+
+there are 2 options, everyone can sign the same PSBT and then they can be combined with 
+combinepsbt '["processedPSBThex_1", "processedPSBThex_2", "processedPSBThex_3"]'
+
+or PSBTs can be daisychained with each signer, signing the PSBT and passing the signed PSBT to the next signer until all signatures are completed. No combinepsbt is needed.
+
+Spanish wallet signed PSBT - 1st signature
+
+Wallet2 signature - (Restored wallet)
+
+##Now that we have 2 of 3 signatures the result shoild be "true"
+
+
+finalizepsbt "psbt"
+
+//This returns a new (longer) hexstring: <hash_from_Fully_Signed_PSBT>
+
+
+sendrawtransaction <hash_from_Fully_Signed_PSBT>
+
+
+createrawtransaction \
+'[{"txid": "52063d0c2ec3f7fc60702e98c0a39e057ee71ae583ddace3d1d68f7a8cb5c125", "vout": 0, "sequence":1}]' \
+'{"tb1qqwqvc8pkq2f0f7cm53ep2yee28e82e64tc7txz": 0.00019200}'

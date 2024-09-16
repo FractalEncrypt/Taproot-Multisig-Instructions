@@ -1,0 +1,53 @@
+Create a Multisig Address
+getnewaddress -> get a new bitcoin address
+getaddressinfo -> get your pubKey
+dumpprivkey -> gets the private key for the address
+//collect pubkeys for all addresses participating in the multisig
+createmultisig -> combines the pubkeys into a single multisig address
+
+createmultisig 2 "[\"pubKey1\",\"pubKey2\",\"pubKey3\"]" //Creates the multisig address
+
+SAVE:
+1. Address
+2. redeemScript
+3. descriptor
+4. EXACT order of pubkeys
+
+
+Now you can fund the multisig address using a regular transaction
+createrawtransaction \
+'[{"txid": "txid", "vout": vout, "sequence":1}]' \
+'{"MultiSigAddress": amount}'
+
+//SAVE the txid of the multisig funding transaction <txid>
+
+SPEND from the Multisig Address
+//importmulti - to import the multisig address into yor wallet
+importmulti '[{"desc": "descriptor", "timestamp": "now", "watchonly": true}]'
+
+getaddressinfo <multisigAddress>
+//Save the scriptPubKey from the result
+"scriptPubKey": "sPk"
+
+listunspent -> to find the txid and vout
+gettransaction <txid> -> gets your scriptPubKey and vout
+
+createrawtransaction \
+'[{"txid": "MultisigTxid", "vout": multiSigVout, "sequence":1}]' \
+'{"SpendToAddress": amount}'
+
+//This gives you a Raw Tx Hash= hexstring
+//We're going to sign this transaction with the first key.
+
+signrawtransactionwithkey "hexstring" [\"privatekey\",...] '[{"txid":"hex","vout":n,"scriptPubKey":"hex","redeemScript":"hex"}]'
+//This returns a new (longer) hexstring and an error saying we need more keys to sign
+//The Error will say -> "error": "CHECK(MULTI)SIG failing with non-zero signature (possibly need more signatures)"
+
+partiallysignedtxHex = 
+
+
+//Take the new hexstring and a different signing private key and insert them into the same template
+
+signrawtransactionwithkey "hexstring" ["privatekey",...] '[{"txid":"hex","vout":n,"scriptPubKey":"hex","redeemScript":"hex","amount":amount}]'
+
+sendrawtransaction <hash_from_Fully_Signed_Tx>
